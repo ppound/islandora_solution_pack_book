@@ -55,7 +55,8 @@ class IslandoraBook {
 select \$object \$page from <#ri>
 where \$object <fedora-rels-ext:isMemberOf> <info:fedora/$this->pid>
 and \$object <fedora-model:state> <fedora-model:Active>
-and \$object <info:islandora/islandora-system:def/pageinfo#isPageNumber> \$page
+and (\$object <info:islandora/islandora-system:def/paged-item-info#sequenceNumber> \$page
+or \$object <http://islandora.ca/ontology/relsext#isSequenceNumber> \$page)
 order by \$page
 XML;
     $results = $class->getRelatedItems($this->pid, $query);
@@ -101,7 +102,7 @@ XML;
         '#type' => 'tabpage',
         '#title' => t('Reading Edition'),
         '#content' => $html,
-        '#weight' => 10,
+        '#weight' => -10,
       );
     }
 
