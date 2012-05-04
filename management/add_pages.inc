@@ -150,7 +150,9 @@ function book_add_pages_form_submit($form, &$form_state) {
     $page_item = Fedora_Item::ingest_new_item($nextPid, 'A', $page_title);
     $page_item->add_relationship('hasModel', $pageCModel, FEDORA_MODEL_URI);
     $page_item->add_relationship('isSequenceNumber',  $start_page, 'http://islandora.ca/ontology/relsext#', TRUE);
-    $page_item->add_relationship('isPageOf', $pid, 'http://islandora.ca/ontology/relsext#', TRUE);
+    $page_item->add_relationship('isPageNumber',  $start_page, 'http://islandora.ca/ontology/relsext#', TRUE);
+    $page_item->add_relationship('isSection',  '1', 'http://islandora.ca/ontology/relsext#', TRUE);
+    $page_item->add_relationship('isPageOf', $pid, 'http://islandora.ca/ontology/relsext#');
     $page_item->add_relationship($relationship, $pid);
     $page_item->add_datastream_from_file($path .'Borndigital_tn.png' , 'TN', 'Thumbnail', 'image/png', 'M');
     $page_item->add_datastream_from_file($path . 'Borndigital_Fullsize.jpg', 'JPEG', 'JPEG Image', 'image/jpg', 'M');
@@ -232,8 +234,10 @@ function ibook_add_single_page_object($book_pid, $page_file, $page_num = 1, $pag
   $page_item = Fedora_Item::ingest_new_item($nextPid, 'A', $page_title);
   $page_item->add_relationship('hasModel', $page_cmodel, FEDORA_MODEL_URI);
   $page_item->add_relationship('isSequenceNumber', $page_num, 'http://islandora.ca/ontology/relsext#', TRUE);
-  $page_item->add_relationship('isPageOf', $book_pid, 'http://islandora.ca/ontology/relsext#', TRUE);
-  $page_item->add_relationship($relation, $book_pid);
+  $page_item->add_relationship('isPageNumber', $page_num, 'http://islandora.ca/ontology/relsext#', TRUE);
+  $page_item->add_relationship('isPageOf', $book_pid, 'http://islandora.ca/ontology/relsext#');
+  $page_item->add_relationship('isSection', '1', 'http://islandora.ca/ontology/relsext#', TRUE);
+  $page_item->add_relationship('isMemberOf', $book_pid, RELS_EXT_URI);
   // add original tiff
   $page_item->add_datastream_from_file($page_file, 'TIFF', 'Archival TIFF', 'image/tiff', 'M');
   $page_file = preg_replace('/\/\//', '/', $page_file);
