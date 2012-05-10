@@ -14,7 +14,8 @@ function current_datastreams(&$form_state, $pid) {
   module_load_include('inc', 'fedora_repository', 'plugins/FedoraObjectDetailedContent');
   $content_helper = new FedoraObjectDetailedContent($pid);
   $objectHelper = new ObjectHelper();
-  $ds_list = datastream_display_builder($content_helper->pid, $content_helper->item);
+  //$ds_list = datastream_display_builder($content_helper->pid, $content_helper->item);
+  $ds_list =  $objectHelper->get_formatted_datastream_list($content_helper->pid, NULL, $content_helper->item);
   $add_datastreams_details = get_add_datastream_data($content_helper->pid);
 
   $form = array();
