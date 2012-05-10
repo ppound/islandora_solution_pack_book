@@ -27,7 +27,8 @@ function page_management_form(&$form_state, $pid) {
 
   $content_helper = new FedoraObjectDetailedContent($pid);
   $object_helper = new ObjectHelper();
-  $ds_list = datastream_display_builder($content_helper->pid, $content_helper->item);
+  //$ds_list = datastream_display_builder($content_helper->pid, $content_helper->item);
+  $ds_list =  $object_helper->get_formatted_datastream_list($content_helper->pid, NULL, $content_helper->item);
   $add_datastreams_details = get_add_datastream_data($content_helper->pid);
   $dc_html = $object_helper->getFormattedDC($content_helper->item);
   $purge_form = drupal_get_form('fedora_repository_purge_object_form', $content_helper->pid, check_plain(substr(request_uri(), strlen(base_path()))));

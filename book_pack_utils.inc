@@ -160,13 +160,16 @@ function save_all_tiffs_in_tempdir($pid, $dsid) {
  * @param Fedora_Item $fedoraItem
  * @return string
  */
+/*
 function datastream_display_builder($object_pid, &$fedoraItem) {
   global $fedoraUser, $fedoraPass, $base_url, $user;
   module_load_include('inc', 'fedora_repository', 'ConnectionHelper');
   module_load_include('inc', 'fedora_repository', 'ObjectHelper');
   module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   module_load_include('inc', 'fedora_repository', 'ContentModel');
+  
   $object_helper = new ObjectHelper();
+  return $object_helper->get_formatted_datastream_list($object_pid, NULL, $fedoraItem);
   $path = drupal_get_path('module', 'fedora_repository');
   $dataStreamBody = '';
   $fedoraItem = new Fedora_Item($object_pid);
@@ -203,7 +206,8 @@ function datastream_display_builder($object_pid, &$fedoraItem) {
             $hasTNStream = TRUE;
           }
           //create the links to each datastream
-          $dataStreamBody .= $object_helper->create_link_for_ds($object_pid, $datastreamValue); //"<tr><td><b>$key :</b></td><td>$value</td></tr>\n";
+          $link_for_ds = $object_helper->create_link_for_ds($object_id,$datastreamValue);
+          $dataStreamBody .= theme_table(NULL,$link_for_ds); //"<tr><td><b>$key :</b></td><td>$value</td></tr>\n";
         }
       }
     }
@@ -234,6 +238,8 @@ function datastream_display_builder($object_pid, &$fedoraItem) {
   }
   return '';
 }
+ 
+ */
 
 /**
  * returns form allowing the ingestion of additional datastreams
