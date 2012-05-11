@@ -140,23 +140,23 @@ function book_add_pages_form_submit($form, &$form_state) {
   }
   if ($pageCModel == 'islandora:bd_pageCModel') {
     renumber_pages($start_page, $pid, 1);
-    $path =  drupal_get_path('module', 'islandora_book') . '/images/';
+    $path = drupal_get_path('module', 'islandora_book') . '/images/';
 
-    
+
     $book_title = $form_state['values']['book_title'];
     $page_title = "$book_title - Page " . sprintf("%03d", $start_page);
     $parts = explode(':', $pid);
     $nextPid = FEDORA_ITEM::get_next_PID_in_namespace($parts[0]);
     $page_item = Fedora_Item::ingest_new_item($nextPid, 'A', $page_title);
     $page_item->add_relationship('hasModel', $pageCModel, FEDORA_MODEL_URI);
-    $page_item->add_relationship('isSequenceNumber',  $start_page, 'http://islandora.ca/ontology/relsext#', TRUE);
-    $page_item->add_relationship('isPageNumber',  $start_page, 'http://islandora.ca/ontology/relsext#', TRUE);
-    $page_item->add_relationship('isSection',  '1', 'http://islandora.ca/ontology/relsext#', TRUE);
+    $page_item->add_relationship('isSequenceNumber', $start_page, 'http://islandora.ca/ontology/relsext#', TRUE);
+    $page_item->add_relationship('isPageNumber', $start_page, 'http://islandora.ca/ontology/relsext#', TRUE);
+    $page_item->add_relationship('isSection', '1', 'http://islandora.ca/ontology/relsext#', TRUE);
     $page_item->add_relationship('isPageOf', $pid, 'http://islandora.ca/ontology/relsext#');
     $page_item->add_relationship($relationship, $pid);
-    $page_item->add_datastream_from_file($path .'Borndigital_tn.png' , 'TN', 'Thumbnail', 'image/png', 'M');
+    $page_item->add_datastream_from_file($path . 'Borndigital_tn.png', 'TN', 'Thumbnail', 'image/png', 'M');
     $page_item->add_datastream_from_file($path . 'Borndigital_Fullsize.jpg', 'JPEG', 'JPEG Image', 'image/jpg', 'M');
-    $page_item->add_datastream_from_string('Born digital - not yet edited', 'OCR', 'OCR', 'text/plain', 'M' );
+    $page_item->add_datastream_from_string('Born digital - not yet edited', 'OCR', 'OCR', 'text/plain', 'M');
     drupal_goto("fedora/repository/$pid");
   }
 }
@@ -277,6 +277,30 @@ function ibook_add_single_page_object($book_pid, $page_file, $page_num = 1, $pag
     exec("$executable $page_file $page_file -l eng", $output, $returnValue);
     if ($returnValue == '0') {
       $page_item->add_datastream_from_file("$page_file.txt", 'OCR', "Scanned Text", 'text/plain', 'M');
+    }
+    exec("$executable $page_file $page_file -l eng hocr", $output, $returnValue);
+    if ($returnValue == '0') {
+      $html_string = file_get_contents("$page_file.html");
+      if (empty($html_string)) {
+        return;
+      }
+      $proc = new XsltProcessor();
+      //convert the hocr from html 4.01 transitional to xhtml and lower case the text
+      $doc_type = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
+      $xml_string = str_replace($doc_type, '<?xml version="1.0" encoding="UTF-8"?>', $html_string);
+      $input = new DomDocument();
+      $input->loadXML($xml_string);
+      $path = drupal_get_path('module', 'islandora_bookviewer');
+      $xsl = new DomDocument();
+      $test = $xsl->load($path . '/xslt/hocrToLowerhocr.xsl');
+      if (!$test) {//can't run transform so leaving
+        return;
+      }
+      $xsl = $proc->importStylesheet($xsl);
+      $newdom = $proc->transformToDoc($input);
+      $content = $newdom->saveXML();
+      file_put_contents("$page_file.xml",$content);
+      $page_item->add_datastream_from_file("$page_file.xml", 'ENCODED_OCR', "ENCODED_OCR", 'text/xml', 'M');
     }
   }
 }
