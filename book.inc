@@ -74,12 +74,22 @@ XML;
       $qs = '?uid=' . base64_encode($user->name . ':' . $user->pass);
     }
     module_load_include('inc', 'islandora_bookviewer', 'islandora_bookviewer');
-    $bookviewer = new IslandoraBookviewer($this->pid);
-    $html = $bookviewer->showAjaxBookViewer('mainpage.php');
-    //$html = $bookviewer->showBookViewer();
-    //$viewer_url = variable_get('fedora_base_url', '') . '/get/' . $this->pid . '/islandora:viewerSdef/getViewer' . $qs;
-    // $html = '<iframe src="' . $viewer_url . '" scrolling="0" frameborder="0" style="width: 100%; height: 800px;">Errors: unable to load viewer</iframe>';
-    $tabset['pages_tab'] = array(
+    module_load_include('inc', 'fedora_repository','ObjectHelper');
+    $oh = new ObjectHelper();
+    //This is a bit of a hack but allows us to handle two viewers in one solution pack
+    //ideally we would do module invoke_all and then implement the viewers in a module
+    //but two modules for 4 lines of code seems a bit much.
+    $cmodels = $oh->get_content_models_list($this->pid);
+    foreach($cmodels as $cmodel){
+      if($cmodel->pid == "islandora:iaBookCModel"){
+        $bookviewer = new IslandoraBookviewer($this->pid);
+         $html = $bookviewer->showAjaxBookViewer('mainpage.php');
+      } else {
+        $viewer_url = variable_get('fedora_base_url', '') . '/get/' . $this->pid . '/islandora:viewerSdef/getViewer' . $qs;
+        $html = '<iframe src="' . $viewer_url . '" scrolling="0" frameborder="0" style="width: 100%; height: 800px;">Errors: unable to load viewer</iframe>';
+      }
+    }
+     $tabset['pages_tab'] = array(
       // #type and #title are the minimum requirements.
       '#type' => 'tabpage',
       '#title' => t('Pages'),

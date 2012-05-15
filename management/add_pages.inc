@@ -198,7 +198,7 @@ function ibook_create_page_objects($pid, $image_list = array(), $page_cmodel = '
   if (variable_get('islandora_create_book_pdf', FALSE)) {
     $batch['operations'][] = array('makePDF', array($pid, $image_list, $tmpDir));
   }
-  $batch['operations'][] = array('  deleteDirectory($tmpDir);', array($tmpDir));
+  $batch['operations'][] = array('deleteDirectory', array($tmpDir));
   $collection = get_collection_from_pid($pid);
   batch_set($batch);
   batch_process("fedora/repository/$pid");
@@ -214,7 +214,7 @@ function ibook_create_page_objects($pid, $image_list = array(), $page_cmodel = '
     $book->modify_datastream_by_value($xml->saveXML(), 'DC', 'Dublin core', 'text/xml', TRUE, "Added Type of Ingested", FALSE);
   }
   $collection = get_collection_from_pid($pid);
-  drupal_goto('fedora/repository/' . $collection[0]);
+  //drupal_goto('fedora/repository/' . $collection[0]);
 }
 
 /**
