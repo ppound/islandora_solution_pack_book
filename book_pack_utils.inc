@@ -463,7 +463,10 @@ function renumber_pages($insertion_point, $book_pid, $new_page_count) {
     if ($item->exists()) {
       $new_title = "$book_title - Page " . sprintf("%03d", $i + $new_page_count);
       $item->purge_relationship('isPageNumber', sprintf("%04d", $i));
-      $item->add_relationship('isPageNumber', sprintf("%04d", $i + $new_page_count), ISLANDORA_PAGE_URI);
+      $item->purge_relationships('isPageNumber', sprintf("%04d", $i));
+      $item->purge_relationships('isSequenceNumber',sprintf("%04d",$i));
+      $item->add_relationship('isPageNumber', sprintf("%04d", $i + $new_page_count), ISLANDORA_RELS_EXT_URI, TRUE);
+      $item->add_relationship('isSequenceNumber', sprintf("%04d", $i + $new_page_count), ISLANDORA_RELS_EXT_URI, TRUE);
       $item->modify_object($label = "$new_title", $state = NULL, $ownerId = NULL, $logMessage = 'Modified by Islandora API');
     }
   }
@@ -482,8 +485,11 @@ function post_deletion_renumber_pages($book_pid) {
     if ($item->exists()) {
       $current_number = get_page_number($page_pids[$i]);
       if ($current_number != $i + 1) {
-        $item->purge_relationship('isPageNumber', sprintf("%04d", $current_number));
-        $item->add_relationship('isPageNumber', sprintf("%04d", $i + 1), ISLANDORA_PAGE_URI);
+        $item->purge_relationship('isPageNumber', sprintf("%04d", $i));
+        $item->purge_relationships('isPageNumber', sprintf("%04d", $i));
+        $item->purge_relationships('isSequenceNumber',sprintf("%04d",$i));
+        $item->add_relationship('isPageNumber', sprintf("%04d", $i + $new_page_count), ISLANDORA_RELS_EXT_URI, TRUE);
+        $item->add_relationship('isSequenceNumber', sprintf("%04d", $i + $new_page_count), ISLANDORA_RELS_EXT_URI, TRUE);
         $item->modify_object($label = "$book_title - Page " . sprintf("%03d", $i + 1), $state = NULL, $ownerId = NULL, $logMessage = 'Modified by Islandora API');
       }
     }
@@ -498,7 +504,7 @@ function post_deletion_renumber_pages($book_pid) {
 function get_page_number($page_pid) {
   module_load_include('inc', 'fedora_repository', 'api/fedora_utils');
   $query_string = "select \$object from <#ri>
-                   where <info:fedora/$page_pid> <info:islandora/islandora-system:def/pageinfo#isPageNumber> \$object";
+                   where <info:fedora/$page_pid> <http://islandora.ca/ontology/relsext#isSequenceNumber> \$object";
   $query_string = htmlentities(urlencode($query_string));
   $content = '';
   $url = variable_get('fedora_repository_url', 'http://localhost:8080/fedora/risearch');
